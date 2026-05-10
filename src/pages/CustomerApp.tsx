@@ -17,14 +17,16 @@ export default function CustomerApp() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'menu' | 'orders'>('menu');
+  const [customerName, setCustomerName] = useState('');
 
   const handleCheckout = async () => {
     if (!user) {
-      await signIn();
+      alert('自動登入中，請稍後');
       return;
     }
-    await createOrder(user.displayName || 'Guest', cart.items, cart.totalAmount());
+    await createOrder(customerName.trim() || '顧客', cart.items, cart.totalAmount());
     cart.clearCart();
+    setCustomerName('');
     setIsCartOpen(false);
     setActiveTab('orders');
   };
@@ -38,27 +40,20 @@ export default function CustomerApp() {
             {isAdmin && <Link to="/admin" className="ml-4 text-xs bg-green-600 px-2 py-1 rounded">Admin</Link>}
           </div>
           <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <button 
-                  onClick={() => setActiveTab('menu')}
-                  className={clsx("text-sm", activeTab === 'menu' && "font-bold underline")}
-                >
-                  Menu
-                </button>
-                <button 
-                  onClick={() => setActiveTab('orders')}
-                  className={clsx("text-sm", activeTab === 'orders' && "font-bold underline")}
-                >
-                  Orders
-                </button>
-                <button onClick={signOut} className="text-sm border border-green-600 px-2 py-1 rounded hover:bg-green-700">Logout</button>
-              </div>
-            ) : (
-              <button onClick={signIn} className="text-sm bg-white text-green-800 px-3 py-1 rounded font-medium flex items-center">
-                <User size={16} className="mr-1" /> Login
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => setActiveTab('menu')}
+                className={clsx("text-sm", activeTab === 'menu' && "font-bold underline")}
+              >
+                Menu
               </button>
-            )}
+              <button 
+                onClick={() => setActiveTab('orders')}
+                className={clsx("text-sm", activeTab === 'orders' && "font-bold underline")}
+              >
+                Orders
+              </button>
+            </div>
             
             <button 
               onClick={() => setIsCartOpen(true)}
@@ -193,6 +188,16 @@ export default function CustomerApp() {
             </div>
 
             <div className="p-4 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+               <div className="mb-4">
+                 <label className="block text-sm font-bold text-gray-700 mb-1">取件人姓名/編號</label>
+                 <input 
+                   type="text" 
+                   value={customerName}
+                   onChange={e => setCustomerName(e.target.value)}
+                   placeholder="您可以輸入您的稱呼"
+                   className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                 />
+               </div>
                <div className="flex justify-between items-center mb-4 text-lg font-bold">
                  <span>Total</span>
                  <span className="text-green-700">${cart.totalAmount()}</span>
@@ -202,7 +207,7 @@ export default function CustomerApp() {
                  disabled={cart.items.length === 0}
                  className="w-full bg-green-800 text-white py-3 rounded-xl font-bold disabled:bg-gray-300 hover:bg-green-900 transition-colors"
                >
-                 {user ? 'Place Order' : 'Login to Checkout'}
+                 Place Order
                </button>
             </div>
           </div>
