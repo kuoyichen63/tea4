@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "A customer's order for tea.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "User ID of the customer"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Customer's name"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered items",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "sweetness": { "type": "string" },
+              "ice": { "type": "string" },
+              "quantity": { "type": "number" }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "preparing", "ready", "completed"],
+          "description": "Current status of the order"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total price in TWD"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": ["userId", "customerName", "items", "status", "totalAmount", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer orders in the queue."
+    }
+  }
+}
