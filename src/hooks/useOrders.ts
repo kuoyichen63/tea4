@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../lib/firebase';
+import { db } from '../lib/firebase';
 import { handleFirestoreError, OperationType } from '../lib/errorHandler';
 import { CartItem } from '../store/useCartStore';
 
@@ -22,17 +22,15 @@ export function useOrders(isAdmin: boolean = false) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth.currentUser) {
-       setLoading(false);
-       return;
-    }
+    const userId = localStorage.getItem('app_user_id');
+    if (!userId) return;
 
     const ordersCol = collection(db, 'orders');
     let q;
     if (isAdmin) {
       q = query(ordersCol, orderBy('createdAt', 'desc'));
     } else {
-      q = query(ordersCol, where('userId', '==', auth.currentUser.uid), orderBy('createdAt', 'desc'));
+      q = query(ordersCol, where('userId', '==', userId), orderBy('createdAt', 'desc'));
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -48,14 +46,14 @@ export function useOrders(isAdmin: boolean = false) {
     });
 
     return () => unsubscribe();
-  }, [isAdmin, auth.currentUser?.uid]);
+  }, [isAdmin]);
 
   const createOrder = async (customerName: string, items: CartItem[], totalAmount: number) => {
-    if (!auth.currentUser) throw new Error('Must be logged in to order');
+    const userId = localStorage.getItem('app_user_id') || 'guest';
     
     try {
       await addDoc(collection(db, 'orders'), {
-        userId: auth.currentUser.uid,
+        userId,
         customerName,
         items,
         status: 'pending',
