@@ -6,11 +6,6 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    function isSignedIn() { return request.auth != null; }
-    function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
-    }
-    
     function isValidId(id) { 
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
     }
@@ -29,34 +24,29 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
-      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read, list: if true;
       
-      allow create: if isSignedIn() 
-        && isValidId(orderId)
+      allow create: if isValidId(orderId)
         && isValidOrder(incoming())
-        && incoming().userId == request.auth.uid
         && incoming().status == 'pending'
         && incoming().createdAt == request.time
         && incoming().updatedAt == request.time;
         
-      allow update: if isSignedIn()
-        && isValidOrder(incoming())
+      allow update: if isValidOrder(incoming())
         && incoming().createdAt == existing().createdAt
         && incoming().userId == existing().userId
         && incoming().updatedAt == request.time
         && (
-          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
           ||
-          (existing().userId == request.auth.uid && existing().status == 'pending' && incoming().diff(existing()).affectedKeys().hasOnly(['items', 'totalAmount', 'updatedAt', 'customerName']))
+          (existing().status == 'pending' && incoming().diff(existing()).affectedKeys().hasOnly(['items', 'totalAmount', 'updatedAt', 'customerName']))
         );
         
-      allow delete: if isAdmin();
+      allow delete: if true;
     }
     
     match /admins/{adminId} {
-      allow read: if isSignedIn() && (request.auth.uid == adminId || isAdmin());
-      allow list: if isAdmin();
+      allow read, list: if true;
     }
   }
 }
