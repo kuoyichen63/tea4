@@ -1,0 +1,6 @@
+{
+  "name": "Tea Shop Ordering System",
+  "description": "A tea shop ordering system with customer storefront and staff dashboard, powered by Firebase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
