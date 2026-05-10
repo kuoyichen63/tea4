@@ -42,9 +42,6 @@ export default function AdminApp() {
            <Link to="/" className="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors">
              <LayoutDashboard className="mr-3" size={20} /> View Storefront
            </Link>
-           <button onClick={signOut} className="w-full flex items-center p-3 rounded-lg text-red-400 hover:bg-gray-800 transition-colors">
-             <LogOut className="mr-3" size={20} /> Sign Out
-           </button>
         </div>
       </aside>
 
