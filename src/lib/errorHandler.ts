@@ -1,5 +1,3 @@
-import { auth } from './firebase';
-
 export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
@@ -15,9 +13,6 @@ interface FirestoreErrorInfo {
   path: string | null;
   authInfo: {
     userId?: string | null;
-    email?: string | null;
-    emailVerified?: boolean | null;
-    isAnonymous?: boolean | null;
   }
 }
 
@@ -25,10 +20,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
+      userId: localStorage.getItem('app_user_id'),
     },
     operationType,
     path
